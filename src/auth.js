@@ -49,20 +49,26 @@ class SnapAuth {
     }
   }
 
-  // async refreshToken(refreshToken) {
-  //   try {
-  //     const response = await axios.post(SNAP_TOKEN_URL, {
-  //       client_id: this.clientId,
-  //       client_secret: this.clientSecret,
-  //       refresh_token: refreshToken,
-  //       grant_type: "refresh_token",
-  //     });
-
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error("Error refreshing access token");
-  //   }
-  // }
+  async refreshToken(refreshToken) {
+    try {
+      const params = new URLSearchParams();
+      params.append("client_id", this.clientId);
+      params.append("client_secret", this.clientSecret);
+      params.append("refresh_token", refreshToken);
+      params.append("grant_type", "refresh_token");
+  
+      const response = await axios.post("https://accounts.snapchat.com/login/oauth2/access_token", params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+  
+      return response.data;
+    } catch (error) {
+      // console.error("Error refreshing access token:", error.response?.data || error.message);
+      throw new Error("Error refreshing access token");
+    }
+  }
 
   // async getAuthenticatedUser(accessToken) {
   //   try {
