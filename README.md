@@ -1,6 +1,6 @@
-# Snap Marketing SDK
+# Snapchat Marketing SDK
 
-A simple Node.js SDK to integrate with Snap Marketing API for authentication and ad insights.
+A simple Node.js SDK to integrate with Snapchat Marketing API
 
 ## Installation
 ```sh
