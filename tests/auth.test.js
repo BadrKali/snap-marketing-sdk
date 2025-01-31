@@ -64,4 +64,33 @@ describe("SnapAuth", () => {
     });
   });
 
+  describe("refreshToken", () => {
+    it("should return a new access token on successful refresh", async () => {
+      const mockRefreshTokenResponse = {
+        access_token: "new-mock-access-token",
+        expires_in: 3600,
+      };
+
+      nock("https://accounts.snapchat.com")
+        .post("/login/oauth2/access_token")
+        .reply(200, mockRefreshTokenResponse);
+
+      const refreshToken = "mock-refresh-token";
+      const token = await snapAuth.refreshToken(refreshToken);
+
+      expect(token).toEqual(mockRefreshTokenResponse);
+    });
+
+    it("should throw an error if refresh token request fails", async () => {
+      nock("https://accounts.snapchat.com")
+        .post("/login/oauth2/access_token")
+        .reply(400, { error: "invalid_request" });
+
+      const refreshToken = "mock-refresh-token";
+
+      await expect(snapAuth.refreshToken(refreshToken)).rejects.toThrow(
+        "Error refreshing access token"
+      );
+    });
+  });
 });
