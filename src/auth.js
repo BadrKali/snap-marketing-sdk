@@ -72,7 +72,11 @@ class SnapAuth {
 
   async getAuthenticatedUser(accessToken) {
     try {
-      const response = await apiClient.get("/me", accessToken);
+      const response = await axios.get("https://adsapi.snapchat.com/v1/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       return response.data;
     } catch (error) {
       throw new Error("Error getting authenticated user");
