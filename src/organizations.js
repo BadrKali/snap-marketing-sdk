@@ -17,7 +17,13 @@ class Organizations {
         return this.apiClient.get('/v1/me/organizations');
     }
 
+    async getOrganzationsWithAdAccounts() {
+        return this.apiClient.get('/v1/me/organizations?with_ad_accounts=true');
+    }
 
+    async getOrganizationById(organizationId) {
+        return this.apiClient.get(`/v1/organizations/${organizationId}`);
+    }
 
 }
 
