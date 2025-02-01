@@ -70,14 +70,14 @@ class SnapAuth {
     }
   }
 
-  // async getAuthenticatedUser(accessToken) {
-  //   try {
-  //     const response = await apiClient.get("/me", accessToken);
-  //     return response.data;
-  //   } catch (error) {
-  //     throw new Error("Error getting authenticated user");
-  //   }
-  // }
+  async getAuthenticatedUser(accessToken) {
+    try {
+      const response = await apiClient.get("/me", accessToken);
+      return response.data;
+    } catch (error) {
+      throw new Error("Error getting authenticated user");
+    }
+  }
 }
 
 module.exports = SnapAuth;
