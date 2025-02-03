@@ -1,6 +1,6 @@
 const SnapAuth = require('./auth');
 const Organizations = require('./organizations');
-
+const AdAccounts = require('./adAccounts');
 
 class SnapMarketingSDK {
     constructor({ clientId, clientSecret, redirectUri }) {
@@ -19,6 +19,10 @@ class SnapMarketingSDK {
 
     Organizations(refreshToken) {
         return new Organizations(this, refreshToken);
+    }
+
+    AdAccounts(refreshToken) {
+        return new AdAccounts(this, refreshToken);
     }
 }
 
