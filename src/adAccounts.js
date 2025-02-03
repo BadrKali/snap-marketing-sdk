@@ -18,7 +18,11 @@ class AdAccounts {
     }
 
     async createAdAccount(organization_id, data) {
-
+        const payload = {
+            adaccounts: [data]
+        };
+        
+        return this.apiClient.post(`/v1/organizations/${organization_id}/adaccounts`, payload);
     }
 
     async getAdAccountById(adAccountId) {
