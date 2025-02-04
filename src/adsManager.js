@@ -26,3 +26,6 @@ class AdsManager {
         return this.apiClient.delete(`/v1/campaigns/${campaignId}`);
     }
 }
+
+
+module.exports = AdsManager;
