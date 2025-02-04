@@ -25,6 +25,14 @@ class Organizations {
         return this.apiClient.get(`/v1/organizations/${organizationId}`);
     }
 
+    async getOrganizationFundingSources(organizationId) {
+        return this.apiClient.get(`/v1/organizations/${organizationId}/fundingsources`);
+    }
+
+    async getFundingSourceById(fundingSourceId) {
+        return this.apiClient.get(`/v1/fundingsources/${fundingSourceId}`);
+    }
+
 }
 
 
