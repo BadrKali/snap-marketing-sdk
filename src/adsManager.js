@@ -37,6 +37,18 @@ class AdsManager {
         }
         return this.apiClient.get(url);
     }
+
+    async getSpecificAdSquad(adSquadId) {
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}`);
+    }
+
+    async getAdSquadUnderCampaign(campaignId) {
+        return this.apiClient.get(`/v1/campaigns/${campaignId}/adsquads`);
+    }
+
+    async deleteAdSquad(adSquadId) {
+        return this.apiClient.delete(`/v1/adsquads/${adSquadId}`);
+    }
 }
 
 
