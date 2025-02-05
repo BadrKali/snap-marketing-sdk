@@ -14,8 +14,12 @@ class AdsManager {
         });
     }
 
-    async getAllCampaigns(adAccountId) {
-        return this.apiClient.get(`/v1/adaccounts/${adAccountId}/campaigns`);
+    async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
+        let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
     }
 
     async getSpecificCampaign(campaignId) {
@@ -25,7 +29,16 @@ class AdsManager {
     async deleteCampaign(campaignId) {
         return this.apiClient.delete(`/v1/campaigns/${campaignId}`);
     }
+
+    async getAllAdSquads(adAccountId, limit = 5, cursor=null) {
+        let url = `/v1/adaccounts/${adAccountId}/adsquads?limit=${limit}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
+    }
 }
 
 
 module.exports = AdsManager;
+
