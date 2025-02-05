@@ -14,6 +14,8 @@ class AdsManager {
         });
     }
 
+
+    
     async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
         let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
         if(cursor){
@@ -49,6 +51,31 @@ class AdsManager {
     async deleteAdSquad(adSquadId) {
         return this.apiClient.delete(`/v1/adsquads/${adSquadId}`);
     }
+
+    async getAllAds(adAccountId, limit = 5, cursor=null) {
+        let url = `/v1/adaccounts/${adAccountId}/ads?limit=${limit}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
+    }
+
+    async getSpecificAd(adId) {
+        return this.apiClient.get(`/v1/ads/${adId}`);
+    }
+
+    async getAdUnderAdSquad(adSquadId) {
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}/ads`);
+    }
+
+    async getAdUnderCampaign(campaignId) {
+        return this.apiClient.get(`/v1/campaigns/${campaignId}/ads`);
+    }
+
+    async deleteAd(adId) {
+        return this.apiClient.delete(`/v1/ads/${adId}`);
+    }
+
 }
 
 
