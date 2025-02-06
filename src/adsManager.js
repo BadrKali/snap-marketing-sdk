@@ -77,7 +77,7 @@ class AdsManager {
 
     async getAllCampaignsReports(adAccountId, fields = ["spend"], limit = 5, cursor = null) {
         const fieldsParam = fields.join(","); 
-        const url = `/v1/adaccounts/${adAccountId}/stats?limit=${limit}&breakdown=campaign&fields=${fieldsParam}`;
+        let url = `/v1/adaccounts/${adAccountId}/stats?limit=${limit}&breakdown=campaign&fields=${fieldsParam}`;
         if(cursor){
             url = url + `&cursor=${cursor}`;
         }
