@@ -15,7 +15,6 @@ class AdsManager {
     }
 
 
-    
     async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
         let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
         if(cursor){
@@ -84,7 +83,27 @@ class AdsManager {
         }
         return this.apiClient.get(url);
     }
-    
+
+    async getCampaignReports(campaignId, fields = ["spend"]) {
+        const fieldsParam = fields.join(","); 
+        return this.apiClient.get(`/v1/campaigns/${campaignId}/stats?fields=${fieldsParam}`);
+    }
+
+    async getAdSquadReports(adSquadId, fields = ["spend"]) {
+        const fieldsParam = fields.join(","); 
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?fields=${fieldsParam}`);
+    }
+
+    async getAllAdSquadsReports(adAccountId, fields = ["spend"], limit = 5, cursor = null) {
+        const adSquads = await this.getAllAdSquads(adAccountId, limit, cursor);
+        const paging = adSquads.paging;
+        const adSquadIds = adSquads.adsquads.map(adSquad => adSquad.adsquad.id);
+        const adSquadReports = await Promise.all(adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, fields)));
+        return {
+            reports: adSquadReports,
+            paging: paging
+        };
+    }
 }
 
 
