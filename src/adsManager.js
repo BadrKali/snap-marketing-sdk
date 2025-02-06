@@ -76,6 +76,15 @@ class AdsManager {
         return this.apiClient.delete(`/v1/ads/${adId}`);
     }
 
+    async getAllCampaignsReports(adAccountId, fields = ["spend"], limit = 5, cursor = null) {
+        const fieldsParam = fields.join(","); 
+        const url = `/v1/adaccounts/${adAccountId}/stats?limit=${limit}&breakdown=campaign&fields=${fieldsParam}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
+    }
+    
 }
 
 
