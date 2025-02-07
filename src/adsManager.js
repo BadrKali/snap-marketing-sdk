@@ -75,14 +75,33 @@ class AdsManager {
         return this.apiClient.delete(`/v1/ads/${adId}`);
     }
 
-    async getAllCampaignsReports(adAccountId, fields = ["spend"], limit = 5, cursor = null) {
-        const fieldsParam = fields.join(","); 
-        let url = `/v1/adaccounts/${adAccountId}/stats?limit=${limit}&breakdown=campaign&fields=${fieldsParam}`;
-        if(cursor){
-            url = url + `&cursor=${cursor}`;
-        }
+    async getAllCampaignsReports(adAccountId, options = {}) {
+        const {
+            fields = ["spend"],
+            limit = 5,
+            cursor = null,
+            granularity = "TOTAL",
+            breakdown = "campaign", 
+            ...otherParams
+        } = options;
+    
+        const fieldsParam = fields.join(",");
+        const params = new URLSearchParams({
+            limit,
+            breakdown,
+            fields: fieldsParam,
+        });
+        if (cursor) params.append("cursor", cursor);
+        if (granularity) params.append("granularity", granularity);
+        Object.entries(otherParams).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                params.append(key, value);
+            }
+        });
+        const url = `/v1/adaccounts/${adAccountId}/stats?${params.toString()}`;
         return this.apiClient.get(url);
     }
+    
 
     async getCampaignReports(campaignId, fields = ["spend"]) {
         const fieldsParam = fields.join(","); 
