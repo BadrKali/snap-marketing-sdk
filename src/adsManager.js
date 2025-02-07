@@ -66,35 +66,30 @@ class AdsManager {
         return this.apiClient.delete(`/v1/adsquads/${adSquadId}`);
     }
 
-    
-    async getAllCampaignsReports(adAccountId, options = {}) {
-        const {
-            fields = ["spend"],
-            limit = 5,
-            cursor = null,
-            granularity = "TOTAL",
-            breakdown = "campaign",
-            ...otherParams
-        } = options;
-    
+    async getCampaignReports(campaignId, options = {}) {
         const queryParams = this._buildQueryParams({
-            fields: fields.join(","),
-            limit,
-            cursor,
-            granularity,
-            breakdown,
-            ...otherParams
+            fields: options.fields ? options.fields.join(",") : "spend",
+            ...options
         });
     
-        const url = `/v1/adaccounts/${adAccountId}/stats?${queryParams}`;
-        return this.apiClient.get(url);
+        return this.apiClient.get(`/v1/campaigns/${campaignId}/stats?${queryParams}`);
     }
     
-    
-    
-    async getCampaignReports(campaignId, fields = ["spend"]) {
-        const fieldsParam = fields.join(","); 
-        return this.apiClient.get(`/v1/campaigns/${campaignId}/stats?fields=${fieldsParam}`);
+    async getAllCampaignsReports(adAccountId, options = {}) {
+        const { limit = 5, cursor = null, ...otherParams } = options;
+        const campaigns = await this.getAllCampaigns(adAccountId, limit, cursor);
+        const paging = campaigns.paging;
+        const campaignIds = campaigns.campaigns.map(campaign => campaign.campaign.id);
+        let campaignReports = await Promise.all(
+            campaignIds.map(campaignId => this.getCampaignReports(campaignId, otherParams))
+        );
+        campaignReports.forEach((campaignReport, index) => {
+            campaignReport.total_stats[0].total_stat.name = campaigns.campaigns[index].campaign.name;
+        });
+        return {
+            reports: campaignReports,
+            paging: paging
+        };
     }
 
     async getAdSquadReports(adSquadId, options = {}) {
@@ -113,10 +108,12 @@ class AdsManager {
         const paging = adSquads.paging;
         const adSquadIds = adSquads.adsquads.map(adSquad => adSquad.adsquad.id);
         
-        const adSquadReports = await Promise.all(
+        let adSquadReports = await Promise.all(
             adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, otherParams))
         );
-    
+        adSquadReports.forEach((adSquadReport, index) => {
+            adSquadReport.total_stats[0].total_stat.name = adSquads.adsquads[index].adsquad.name;
+        });
         return {
             reports: adSquadReports,
             paging: paging
