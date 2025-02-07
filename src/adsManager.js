@@ -51,30 +51,7 @@ class AdsManager {
         return this.apiClient.delete(`/v1/adsquads/${adSquadId}`);
     }
 
-    async getAllAds(adAccountId, limit = 5, cursor=null) {
-        let url = `/v1/adaccounts/${adAccountId}/ads?limit=${limit}`;
-        if(cursor){
-            url = url + `&cursor=${cursor}`;
-        }
-        return this.apiClient.get(url);
-    }
-
-    async getSpecificAd(adId) {
-        return this.apiClient.get(`/v1/ads/${adId}`);
-    }
-
-    async getAdUnderAdSquad(adSquadId) {
-        return this.apiClient.get(`/v1/adsquads/${adSquadId}/ads`);
-    }
-
-    async getAdUnderCampaign(campaignId) {
-        return this.apiClient.get(`/v1/campaigns/${campaignId}/ads`);
-    }
-
-    async deleteAd(adId) {
-        return this.apiClient.delete(`/v1/ads/${adId}`);
-    }
-
+    
     async getAllCampaignsReports(adAccountId, options = {}) {
         const {
             fields = ["spend"],
@@ -102,7 +79,7 @@ class AdsManager {
         return this.apiClient.get(url);
     }
     
-
+    
     async getCampaignReports(campaignId, fields = ["spend"]) {
         const fieldsParam = fields.join(","); 
         return this.apiClient.get(`/v1/campaigns/${campaignId}/stats?fields=${fieldsParam}`);
@@ -110,26 +87,26 @@ class AdsManager {
 
     async getAdSquadReports(adSquadId, options = {}) {
         const { fields = ["spend"], ...otherParams } = options;
-    
+        
         const params = new URLSearchParams();
         params.append("fields", fields.join(","));
-    
+        
         Object.entries(otherParams).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
                 params.append(key, value);
             }
         });
-    
+        
         return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${params.toString()}`);
     }
     
     async getAllAdSquadsReports(adAccountId, options = {}) {
         const { limit = 5, cursor = null, ...otherParams } = options;
-    
+        
         const adSquads = await this.getAllAdSquads(adAccountId, limit, cursor);
         const paging = adSquads.paging;
         const adSquadIds = adSquads.adsquads.map(adSquad => adSquad.adsquad.id);
-    
+        
         const adSquadReports = await Promise.all(
             adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, otherParams))
         );
@@ -139,7 +116,60 @@ class AdsManager {
             paging: paging
         };
     }
+    async getSpecificAd(adId) {
+        return this.apiClient.get(`/v1/ads/${adId}`);
+    }
     
+    async getAdUnderAdSquad(adSquadId) {
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}/ads`);
+    }
+    
+    async getAdUnderCampaign(campaignId) {
+        return this.apiClient.get(`/v1/campaigns/${campaignId}/ads`);
+    }
+    
+    async getAllAds(adAccountId, limit = 5, cursor=null) {
+        let url = `/v1/adaccounts/${adAccountId}/ads?limit=${limit}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
+    }
+
+    async getAdsReports(adId, options = {}) {
+        const { fields = ["spend"], ...otherParams } = options;
+        
+        const params = new URLSearchParams();
+        params.append("fields", fields.join(","));
+        
+        Object.entries(otherParams).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                params.append(key, value);
+            }
+        });
+        
+        return this.apiClient.get(`/v1/ads/${adId}/stats?${params.toString()}`);
+    }
+
+    async getAllAdsReports(adAccountId, options = {}) {
+        const { limit = 5, cursor = null, ...otherParams } = options;
+        const ads = await this.getAllAds(adAccountId, limit, cursor);
+        const paging = ads.paging;
+        const adIds = ads.ads.map(ad => ad.ad.id);
+    
+        const adReports = await Promise.all(
+            adIds.map(adId => this.getAdsReports(adId, otherParams))
+        );
+    
+        return {
+            reports: adReports,
+            paging: paging
+        };
+    }
+    
+    async deleteAd(adId) {
+        return this.apiClient.delete(`/v1/ads/${adId}`);
+    }
 }
 
 
