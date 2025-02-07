@@ -156,9 +156,12 @@ class AdsManager {
         const ads = await this.getAllAds(adAccountId, limit, cursor);
         const paging = ads.paging;
         const adIds = ads.ads.map(ad => ad.ad.id);
-        const adReports = await Promise.all(
+        let adReports = await Promise.all(
             adIds.map(adId => this.getAdsReports(adId, otherParams))
         );
+        adReports.forEach((adReport, index) => {
+            adReport.total_stats[0].total_stat.name = ads.ads[index].ad.name;
+        });
         return {
             reports: adReports,
             paging: paging
