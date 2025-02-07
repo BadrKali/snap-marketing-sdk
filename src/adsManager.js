@@ -14,6 +14,21 @@ class AdsManager {
         });
     }
 
+    _buildQueryParams(options) {
+        const params = new URLSearchParams();
+
+        Object.entries(options).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                if (Array.isArray(value)) {
+                    params.append(key, value.join(",")); 
+                } else {
+                    params.append(key, value);
+                }
+            }
+        });
+
+        return params.toString();
+    }
 
     async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
         let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
@@ -58,26 +73,23 @@ class AdsManager {
             limit = 5,
             cursor = null,
             granularity = "TOTAL",
-            breakdown = "campaign", 
+            breakdown = "campaign",
             ...otherParams
         } = options;
     
-        const fieldsParam = fields.join(",");
-        const params = new URLSearchParams({
+        const queryParams = this._buildQueryParams({
+            fields: fields.join(","),
             limit,
+            cursor,
+            granularity,
             breakdown,
-            fields: fieldsParam,
+            ...otherParams
         });
-        if (cursor) params.append("cursor", cursor);
-        if (granularity) params.append("granularity", granularity);
-        Object.entries(otherParams).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-                params.append(key, value);
-            }
-        });
-        const url = `/v1/adaccounts/${adAccountId}/stats?${params.toString()}`;
+    
+        const url = `/v1/adaccounts/${adAccountId}/stats?${queryParams}`;
         return this.apiClient.get(url);
     }
+    
     
     
     async getCampaignReports(campaignId, fields = ["spend"]) {
@@ -86,18 +98,12 @@ class AdsManager {
     }
 
     async getAdSquadReports(adSquadId, options = {}) {
-        const { fields = ["spend"], ...otherParams } = options;
-        
-        const params = new URLSearchParams();
-        params.append("fields", fields.join(","));
-        
-        Object.entries(otherParams).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-                params.append(key, value);
-            }
+        const queryParams = this._buildQueryParams({
+            fields: options.fields ? options.fields.join(",") : "spend",
+            ...options
         });
-        
-        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${params.toString()}`);
+    
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${queryParams}`);
     }
     
     async getAllAdSquadsReports(adAccountId, options = {}) {
@@ -137,18 +143,12 @@ class AdsManager {
     }
 
     async getAdsReports(adId, options = {}) {
-        const { fields = ["spend"], ...otherParams } = options;
-        
-        const params = new URLSearchParams();
-        params.append("fields", fields.join(","));
-        
-        Object.entries(otherParams).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-                params.append(key, value);
-            }
+        const queryParams = this._buildQueryParams({
+            fields: options.fields ? options.fields.join(",") : "spend",
+            ...options
         });
-        
-        return this.apiClient.get(`/v1/ads/${adId}/stats?${params.toString()}`);
+    
+        return this.apiClient.get(`/v1/ads/${adId}/stats?${queryParams}`);
     }
 
     async getAllAdsReports(adAccountId, options = {}) {
@@ -156,11 +156,9 @@ class AdsManager {
         const ads = await this.getAllAds(adAccountId, limit, cursor);
         const paging = ads.paging;
         const adIds = ads.ads.map(ad => ad.ad.id);
-    
         const adReports = await Promise.all(
             adIds.map(adId => this.getAdsReports(adId, otherParams))
         );
-    
         return {
             reports: adReports,
             paging: paging
