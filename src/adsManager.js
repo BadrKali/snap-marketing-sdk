@@ -108,21 +108,38 @@ class AdsManager {
         return this.apiClient.get(`/v1/campaigns/${campaignId}/stats?fields=${fieldsParam}`);
     }
 
-    async getAdSquadReports(adSquadId, fields = ["spend"]) {
-        const fieldsParam = fields.join(","); 
-        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?fields=${fieldsParam}`);
+    async getAdSquadReports(adSquadId, options = {}) {
+        const { fields = ["spend"], ...otherParams } = options;
+    
+        const params = new URLSearchParams();
+        params.append("fields", fields.join(","));
+    
+        Object.entries(otherParams).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                params.append(key, value);
+            }
+        });
+    
+        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${params.toString()}`);
     }
-
-    async getAllAdSquadsReports(adAccountId, fields = ["spend"], limit = 5, cursor = null) {
+    
+    async getAllAdSquadsReports(adAccountId, options = {}) {
+        const { limit = 5, cursor = null, ...otherParams } = options;
+    
         const adSquads = await this.getAllAdSquads(adAccountId, limit, cursor);
         const paging = adSquads.paging;
         const adSquadIds = adSquads.adsquads.map(adSquad => adSquad.adsquad.id);
-        const adSquadReports = await Promise.all(adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, fields)));
+    
+        const adSquadReports = await Promise.all(
+            adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, otherParams))
+        );
+    
         return {
             reports: adSquadReports,
             paging: paging
         };
     }
+    
 }
 
 
