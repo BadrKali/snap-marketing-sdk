@@ -168,6 +168,18 @@ class AdsManager {
     async deleteAd(adId) {
         return this.apiClient.delete(`/v1/ads/${adId}`);
     }
+
+    async getSpecificCreative(creativeId) {
+        return this.apiClient.get(`/v1/creatives/${creativeId}`);
+    }
+
+    async getAllCreatives(adAccountId, limit = 5, cursor=null) {
+        let url = `/v1/adaccounts/${adAccountId}/creatives?limit=${limit}`;
+        if(cursor){
+            url = url + `&cursor=${cursor}`;
+        }
+        return this.apiClient.get(url);
+    }
 }
 
 
