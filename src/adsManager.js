@@ -112,6 +112,7 @@ class AdsManager {
             adSquadIds.map(adSquadId => this.getAdSquadReports(adSquadId, otherParams))
         );
         adSquadReports.forEach((adSquadReport, index) => {
+            adSquadReport.total_stats[0].total_stat.objective = adSquads.adsquads[index].adsquad.objective;
             adSquadReport.total_stats[0].total_stat.name = adSquads.adsquads[index].adsquad.name;
         });
         return {
