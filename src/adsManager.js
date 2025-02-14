@@ -31,7 +31,7 @@ class AdsManager {
     }
 
     async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
-        let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
+        let url = `/v1/adaccounts/${adAccountId}/campaigns`;
         if(cursor){
             url = url + `&cursor=${cursor}`;
         }
@@ -85,6 +85,8 @@ class AdsManager {
         );
         campaignReports.forEach((campaignReport, index) => {
             campaignReport.total_stats[0].total_stat.name = campaigns.campaigns[index].campaign.name;
+            campaignReport.total_stats[0].total_stat.status = campaigns.campaigns[index].campaign.status;
+            campaignReport.total_stats[0].total_stat.objective = campaigns.campaigns[index].campaign.objective;
         });
         return {
             reports: campaignReports,
@@ -160,6 +162,8 @@ class AdsManager {
         );
         adReports.forEach((adReport, index) => {
             adReport.total_stats[0].total_stat.name = ads.ads[index].ad.name;
+            adReport.total_stats[0].total_stat.status = ads.ads[index].ad.status;
+            adReport.total_stats[0].total_stat.objective = ads.ads[index].ad.objective;
         });
         return {
             reports: adReports,
