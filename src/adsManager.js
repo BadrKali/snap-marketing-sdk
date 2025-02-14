@@ -31,7 +31,7 @@ class AdsManager {
     }
 
     async getAllCampaigns(adAccountId, limit = 5, cursor=null) {
-        let url = `/v1/adaccounts/${adAccountId}/campaigns`;
+        let url = `/v1/adaccounts/${adAccountId}/campaigns?limit=${limit}`;
         if(cursor){
             url = url + `&cursor=${cursor}`;
         }
