@@ -163,7 +163,7 @@ class AdsManager {
         adReports.forEach((adReport, index) => {
             adReport.total_stats[0].total_stat.name = ads.ads[index].ad.name;
             adReport.total_stats[0].total_stat.status = ads.ads[index].ad.status;
-            adReport.total_stats[0].total_stat.objective = ads.ads[index].ad.objective;
+            adReport.total_stats[0].total_stat.creative_id = ads.ads[index].ad.creative_id;
         });
         return {
             reports: adReports,
