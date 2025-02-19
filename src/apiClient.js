@@ -27,10 +27,20 @@ class ApiClient {
     apiClient.interceptors.response.use(
       response => response,
       async error => {
-        if (error.response && error.response.status === 401) {
-          await this.refreshAccessToken();
-          error.config.headers['Authorization'] = `Bearer ${this.accessToken}`;
-          return apiClient(error.config);
+        if (error.response) {
+          const { status, config } = error.response;
+
+          if (status === 401) {
+            await this.refreshAccessToken();
+            config.headers["Authorization"] = `Bearer ${this.accessToken}`;
+            return apiClient(config);
+          }
+
+          if (status === 429) {
+            console.warn("Rate limited. Retrying after 100ms...");
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return apiClient(config); 
+          }
         }
         return Promise.reject(error);
       }
@@ -39,7 +49,8 @@ class ApiClient {
 
   async refreshAccessToken() {
     try {
-      const response = await authClient.post("/login/oauth2/access_token", 
+      const response = await authClient.post(
+        "/login/oauth2/access_token",
         `client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=refresh_token&refresh_token=${this.refreshToken}`
       );
       this.accessToken = response.data.access_token;
@@ -91,4 +102,3 @@ class ApiClient {
 }
 
 module.exports = ApiClient;
-
