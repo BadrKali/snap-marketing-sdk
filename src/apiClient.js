@@ -37,8 +37,8 @@ class ApiClient {
           }
 
           if (status === 429) {
-            console.warn("Rate limited. Retrying after 100ms...");
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // console.warn("Rate limited. Retrying after 100ms...");
+            await new Promise(resolve => setTimeout(resolve, 500));
             return apiClient(config); 
           }
         }
