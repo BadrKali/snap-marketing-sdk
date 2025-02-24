@@ -58,9 +58,16 @@ class AdsManager {
         return this.apiClient.get(`/v1/adsquads/${adSquadId}`);
     }
 
-    async getAdSquadUnderCampaign(campaignId) {
-        return this.apiClient.get(`/v1/campaigns/${campaignId}/adsquads`);
+    async getAdSquadUnderCampaign(campaignIds) {
+        if (!Array.isArray(campaignIds)) {
+            return this.apiClient.get(`/v1/campaigns/${campaignIds}/adsquads`);
+        }
+        const results = await Promise.all(
+            campaignIds.map(id => this.apiClient.get(`/v1/campaigns/${id}/adsquads`))
+        );
+        return results;
     }
+    
 
     async deleteAdSquad(adSquadId) {
         return this.apiClient.delete(`/v1/adsquads/${adSquadId}`);
@@ -128,11 +135,23 @@ class AdsManager {
     }
     
     async getAdUnderAdSquad(adSquadId) {
-        return this.apiClient.get(`/v1/adsquads/${adSquadId}/ads`);
+        if(!Array.isArray(adSquadId)){
+            return this.apiClient.get(`/v1/adsquads/${adSquadId}/ads`);
+        }
+        const results = await Promise.all(
+            adSquadId.map(id => this.apiClient.get(`/v1/adsquads/${id}/ads`))
+        );
+        return results;
     }
     
-    async getAdUnderCampaign(campaignId) {
-        return this.apiClient.get(`/v1/campaigns/${campaignId}/ads`);
+    async getAdUnderCampaign(campaignIds) {
+        if(!Array.isArray(campaignIds)){
+            return this.apiClient.get(`/v1/campaigns/${campaignIds}/ads`);
+        }
+        const results = await Promise.all(
+            campaignIds.map(id => this.apiClient.get(`/v1/campaigns/${id}/ads`))
+        );
+        return results;
     }
     
     async getAllAds(adAccountId, limit = 5, cursor=null) {
