@@ -21,6 +21,7 @@ class ApiClient {
     this.redirectUri = redirectUri;
     this.refreshToken = refreshToken;
     this.accessToken = null;
+    this.refreshingPromise = null; 
 
     this.initialized = this.refreshAccessToken();
 
@@ -31,15 +32,12 @@ class ApiClient {
           const { status, config } = error.response;
 
           if (status === 401) {
-            await this.refreshAccessToken();
-            config.headers["Authorization"] = `Bearer ${this.accessToken}`;
-            return apiClient(config);
+            return this.handleUnauthorizedRequest(config);
           }
 
           if (status === 429) {
-            // console.warn("Rate limited. Retrying after 100ms...");
             await new Promise(resolve => setTimeout(resolve, 500));
-            return apiClient(config); 
+            return apiClient(config);
           }
         }
         return Promise.reject(error);
@@ -48,16 +46,29 @@ class ApiClient {
   }
 
   async refreshAccessToken() {
-    try {
-      const response = await authClient.post(
-        "/login/oauth2/access_token",
-        `client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=refresh_token&refresh_token=${this.refreshToken}`
-      );
-      this.accessToken = response.data.access_token;
-    } catch (error) {
-      console.error("Error refreshing access token:", error);
-      throw error;
+    if (!this.refreshingPromise) {
+      this.refreshingPromise = (async () => {
+        try {
+          const response = await authClient.post(
+            "/login/oauth2/access_token",
+            `client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=refresh_token&refresh_token=${this.refreshToken}`
+          );
+          this.accessToken = response.data.access_token;
+        } catch (error) {
+          console.error("Error refreshing access token:", error);
+          throw error;
+        } finally {
+          this.refreshingPromise = null; 
+        }
+      })();
     }
+    return this.refreshingPromise;
+  }
+
+  async handleUnauthorizedRequest(config) {
+    await this.refreshAccessToken();
+    config.headers["Authorization"] = `Bearer ${this.accessToken}`;
+    return apiClient(config);
   }
 
   async makeRequest(method, endpoint, data = null) {
