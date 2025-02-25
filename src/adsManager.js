@@ -106,8 +106,14 @@ class AdsManager {
             fields: options.fields ? options.fields.join(",") : "spend",
             ...options
         });
-    
-        return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${queryParams}`);
+
+        if(!Array.isArray(adSquadId)){
+            return this.apiClient.get(`/v1/adsquads/${adSquadId}/stats?${queryParams}`);
+        }
+        const results = await Promise.all(
+            adSquadId.map(id => this.apiClient.get(`/v1/adsquads/${id}/stats?${queryParams}`))
+        );
+        return results;
     }
     
     async getAllAdSquadsReports(adAccountId, options = {}) {
@@ -167,8 +173,14 @@ class AdsManager {
             fields: options.fields ? options.fields.join(",") : "spend",
             ...options
         });
-    
-        return this.apiClient.get(`/v1/ads/${adId}/stats?${queryParams}`);
+
+        if(!Array.isArray(adId)){
+            return this.apiClient.get(`/v1/ads/${adId}/stats?${queryParams}`);
+        }
+        const results = await Promise.all(
+            adId.map(id => this.apiClient.get(`/v1/ads/${id}/stats?${queryParams}`))
+        );
+        return results;
     }
 
     async getAllAdsReports(adAccountId, options = {}) {
