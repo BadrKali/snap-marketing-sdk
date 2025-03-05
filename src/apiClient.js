@@ -5,13 +5,13 @@ const BASE_URL_API = "https://adsapi.snapchat.com";
 
 const authClient = axios.create({
   baseURL: BASE_URL_AUTH,
-  timeout: 5000,
+  // timeout: 5000,
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
 });
 
 const apiClient = axios.create({
   baseURL: BASE_URL_API,
-  timeout: 5000,
+  // timeout: 5000,
 });
 
 class ApiClient {
@@ -21,13 +21,13 @@ class ApiClient {
     this.redirectUri = redirectUri;
     this.refreshToken = refreshToken;
     this.accessToken = null;
-    this.refreshingPromise = null; 
+    this.refreshingPromise = null;
 
     this.initialized = this.refreshAccessToken();
 
     apiClient.interceptors.response.use(
-      response => response,
-      async error => {
+      (response) => response,
+      async (error) => {
         if (error.response) {
           const { status, config } = error.response;
 
@@ -36,7 +36,7 @@ class ApiClient {
           }
 
           if (status === 429) {
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
             return apiClient(config);
           }
         }
@@ -58,7 +58,7 @@ class ApiClient {
           console.error("Error refreshing access token:", error);
           throw error;
         } finally {
-          this.refreshingPromise = null; 
+          this.refreshingPromise = null;
         }
       })();
     }
