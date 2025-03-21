@@ -217,6 +217,24 @@ class AdsManager {
         }
         return this.apiClient.get(url);
     }
+
+    async toggleCampaignStatus(campaignId) {
+        const campaignData = await this.getSpecificCampaign(campaignId);
+        const status = campaignData.campaigns[0].campaign.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+        const requestBody = {
+            campaigns: [
+              {
+                id: campaignData.campaigns[0].campaign.id,
+                name: campaignData.campaigns[0].campaign.name,
+                ad_account_id: campaignData.campaigns[0].campaign.ad_account_id,
+                status: status,
+                start_time: campaignData.campaigns[0].campaign.start_time,
+                buy_model: campaignData.campaigns[0].campaign.buy_model,
+              },
+            ],
+          };
+        return this.apiClient.put(`/v1/adaccounts/${campaignData.campaigns[0].campaign.ad_account_id}/campaigns`, requestBody);
+    }
 }
 
 
