@@ -220,21 +220,36 @@ class AdsManager {
 
     async toggleCampaignStatus(campaignId) {
         const campaignData = await this.getSpecificCampaign(campaignId);
-        const status = campaignData.campaigns[0].campaign.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+        const campaign = campaignData.campaigns[0].campaign;
+        campaign.status = campaign.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+    
         const requestBody = {
-            campaigns: [
-              {
-                id: campaignData.campaigns[0].campaign.id,
-                name: campaignData.campaigns[0].campaign.name,
-                ad_account_id: campaignData.campaigns[0].campaign.ad_account_id,
-                status: status,
-                start_time: campaignData.campaigns[0].campaign.start_time,
-                buy_model: campaignData.campaigns[0].campaign.buy_model,
-              },
-            ],
-          };
-        return this.apiClient.put(`/v1/adaccounts/${campaignData.campaigns[0].campaign.ad_account_id}/campaigns`, requestBody);
+            campaigns: [campaign]
+        };
+
+        return this.apiClient.put(`/v1/adaccounts/${campaign.ad_account_id}/campaigns`, requestBody);
     }
+
+    async toggleAdSquadStatus(adSquadId) {
+        const adSquadData = await this.getSpecificAdSquad(adSquadId);
+        const adSquad = adSquadData.adsquads[0].adsquad;
+        adSquad.status = adSquad.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+        const requestBody = {
+            adsquads: [adSquad]
+        };
+        return this.apiClient.put(`/v1/campaigns/${adSquad.campaign_id}/adsquads`, requestBody);
+    }
+
+    async toggleAdStatus(adId) {
+        const adData = await this.getSpecificAd(adId);
+        const ad = adData.ads[0].ad;
+        ad.status = ad.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+        const requestBody = {
+            ads: [ad]
+        };
+        return this.apiClient.put(`/v1/adsquads/${ad.ad_squad_id}/ads`, requestBody);
+    }
+    
 }
 
 
