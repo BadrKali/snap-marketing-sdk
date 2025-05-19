@@ -5,25 +5,27 @@ const BASE_URL_API = "https://adsapi.snapchat.com";
 
 const authClient = axios.create({
   baseURL: BASE_URL_AUTH,
-  // timeout: 5000,
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
 });
 
 const apiClient = axios.create({
   baseURL: BASE_URL_API,
-  // timeout: 5000,
 });
 
 class ApiClient {
-  constructor({ clientId, clientSecret, redirectUri, refreshToken }) {
+  constructor({ clientId, clientSecret, redirectUri, refreshToken, accessToken = null }) {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.redirectUri = redirectUri;
     this.refreshToken = refreshToken;
-    this.accessToken = null;
+    this.accessToken = accessToken;
     this.refreshingPromise = null;
 
-    this.initialized = this.refreshAccessToken();
+    if (!this.accessToken) {
+      this.initialized = this.refreshAccessToken();
+    } else {
+      this.initialized = Promise.resolve();
+    }
 
     apiClient.interceptors.response.use(
       (response) => response,
@@ -32,6 +34,7 @@ class ApiClient {
           const { status, config } = error.response;
 
           if (status === 401) {
+            console.log("Access token expired, refreshing...");
             return this.handleUnauthorizedRequest(config);
           }
 
@@ -54,6 +57,7 @@ class ApiClient {
             `client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=refresh_token&refresh_token=${this.refreshToken}`
           );
           this.accessToken = response.data.access_token;
+          // console.log("access token refreshed:", this.accessToken);
         } catch (error) {
           console.error("Error refreshing access token:", error);
           throw error;
@@ -65,6 +69,13 @@ class ApiClient {
     return this.refreshingPromise;
   }
 
+  async ensureAccessToken() {
+    await this.initialized;
+    if (!this.accessToken) {
+      await this.refreshAccessToken();
+    }
+  }
+
   async handleUnauthorizedRequest(config) {
     await this.refreshAccessToken();
     config.headers["Authorization"] = `Bearer ${this.accessToken}`;
@@ -72,7 +83,7 @@ class ApiClient {
   }
 
   async makeRequest(method, endpoint, data = null) {
-    await this.initialized;
+    await this.ensureAccessToken();
 
     try {
       const response = await apiClient({

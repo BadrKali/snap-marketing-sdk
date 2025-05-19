@@ -22,12 +22,12 @@ class SnapMarketingSDK {
         return new Organizations(this, refreshToken);
     }
 
-    AdAccounts(refreshToken) {
-        return new AdAccounts(this, refreshToken);
+    AdAccounts(refreshToken, accessToken = null) {
+        return new AdAccounts(this, refreshToken, accessToken);
     }
 
-    AdManager(refreshToken) {
-        return new AdsManager(this, refreshToken);
+    AdManager(refreshToken, accessToken = null) {
+        return new AdsManager(this, refreshToken, accessToken);
     }
 }
 

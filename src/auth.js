@@ -82,6 +82,22 @@ class SnapAuth {
       throw new Error("Error getting authenticated user");
     }
   }
+
+  async checkTokenValidity(accessToken) {
+    try {
+      const response = await axios.get("https://adsapi.snapchat.com/v1/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.status === 200;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return false; // Token is invalid
+      }
+      throw new Error("Error checking token validity");
+    }
+  }
 }
 
 module.exports = SnapAuth;

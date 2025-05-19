@@ -4,12 +4,13 @@ require("dotenv").config();
 
 
 class AdAccounts {
-    constructor(sdkConfig, refreshToken) {
+    constructor(sdkConfig, refreshToken, accessToken = null) {
         this.apiClient = new apiClient({
             clientId: sdkConfig.clientId,
             clientSecret: sdkConfig.clientSecret,
             redirectUri: sdkConfig.redirectUri,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            accessToken: accessToken
         });
     }
 
